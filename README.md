@@ -1,106 +1,180 @@
-# Drive - File Storage Application
+# SyncSphere — Cloud Drive & File Storage Platform
 
-A full-stack file storage application with user authentication and file management capabilities.
+SyncSphere (`Drive`) is a full-stack file storage and folder management web application built with **Spring Boot 3 (Java 21)**, **MySQL**, and **React 18**.
 
-## Project Overview
+It supports user registration and authentication, file uploads/downloads/deletions, virtual folder creation and navigation, and clean REST API contracts.
 
-This project consists of two main parts:
-1. **Backend**: A Spring Boot application that provides RESTful APIs for user authentication and file management.
-2. **Frontend**: A React application that provides a user interface for interacting with the backend.
+---
 
 ## Features
 
-- User Authentication
-  - Registration
-  - Login/Logout
-  - User profile management
-- File Management
-  - Upload files
-  - Download files
-  - Delete files
-  - Navigate folders
+- **User Accounts & Authentication**:
+  - Salted SHA-256 password hashing (`PasswordHasher`) with safe `UserResponse` DTOs (passwords are never returned in API payloads).
+  - Registration, login, profile lookup, profile updates, and account deletion.
+- **File & Folder Management**:
+  - Upload files up to 20 MB with path-traversal protection and UUID-prefixed disk storage.
+  - Create virtual folders and browse nested directory levels.
+  - Stream file downloads with `Content-Disposition: attachment` headers.
+  - Delete files (and empty folders) from both disk and database.
+- **Modular Full-Stack Architecture**:
+  - **Backend**: Layered `controller`, `service`, `dto`, `exception`, `repo`, `entity`, `config`, and `util` packages with centralized `@RestControllerAdvice` error handling.
+  - **Frontend**: Centralized Axios `apiClient`, `authService`, `fileService`, custom React hooks (`useAuth`, `useFiles`), and focused UI components.
 
-## Technology Stack
-
-### Backend
-- Java 21
-- Spring Boot 3.5.3
-- Spring Data JPA
-- MySQL Database
-- Maven for dependency management
-
-### Frontend
-- React
-- React Router
-- Axios
-- CSS
+---
 
 ## Project Structure
 
-- `src/main/java/com/example/drive/`: Backend source code
-  - `controler/`: REST controllers
-  - `entity/`: JPA entities
-  - `repo/`: JPA repositories
-  - `services/`: Business logic
-- `frontend/`: React frontend application
-  - `src/`: Source code
-    - `components/`: React components
-    - `App.js`: Main application component
-    - `index.js`: Entry point
+### Backend (`src/main/java/com/example/drive/`)
 
-## Setup and Running
+```text
+src/main/java/com/example/drive/
+├── DriveApplication.java                # Spring Boot entry point
+├── config/
+│   ├── GlobalCorsConfig.java            # Configurable CORS origins
+│   └── StorageProperties.java           # @ConfigurationProperties(prefix = "file")
+├── controller/
+│   ├── FileController.java              # /api/files endpoints (upload, folders, list, download, delete)
+│   └── UserController.java              # /api/users endpoints (register, login, profile CRUD)
+├── dto/
+│   ├── ApiErrorResponse.java            # Consistent JSON error payload
+│   ├── CreateFolderRequest.java
+│   ├── FileResponse.java
+│   ├── LoginRequest.java
+│   ├── RegisterRequest.java
+│   ├── UpdateUserRequest.java
+│   └── UserResponse.java
+├── entity/
+│   ├── FileEntity.java                  # File & folder metadata entity
+│   └── UserEntity.java                  # User account entity
+├── exception/
+│   ├── BadRequestException.java
+│   ├── GlobalExceptionHandler.java      # @RestControllerAdvice exception mapper
+│   ├── ResourceNotFoundException.java
+│   └── UnauthorizedException.java
+├── repo/
+│   ├── FileRepository.java
+│   └── UserRepository.java
+├── service/
+│   ├── FileStorageService.java          # Safe file I/O, folder validation & metadata management
+│   └── UserService.java                 # Registration, login verification & user CRUD
+└── util/
+    └── PasswordHasher.java              # Salted SHA-256 password hashing & verification
+```
 
-### Prerequisites
-- Java 21
-- Node.js and npm
-- MySQL
+### Frontend (`frontend/src/`)
 
-### Backend Setup
-1. Configure your MySQL database in `src/main/resources/application.properties`
-2. Build the project:
-   ```
-   mvn clean install
-   ```
-3. Run the Spring Boot application:
-   ```
-   mvn spring-boot:run
-   ```
-   The backend will be available at http://localhost:8080
+```text
+frontend/src/
+├── App.js                               # Route definitions & auth guard
+├── components/
+│   ├── FileList.js                      # Folder creation, navigation, download & delete
+│   ├── FileUpload.js                    # Multipart upload form with size validation
+│   ├── Login.js
+│   ├── Navbar.js
+│   └── Register.js
+├── hooks/
+│   ├── useAuth.js                       # Session state & localStorage persistence
+│   └── useFiles.js                      # Directory navigation & file operations state
+├── services/
+│   ├── apiClient.js                     # Shared Axios client & error extractor
+│   ├── authService.js                   # Auth API & local storage helpers
+│   └── fileService.js                   # File & folder API calls
+└── utils/
+    └── formatters.js                    # Human-readable file sizes & timestamps
+```
 
-### Frontend Setup
-1. Navigate to the frontend directory:
-   ```
-   cd frontend
-   ```
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Start the development server:
-   ```
-   npm start
-   ```
-   The frontend will be available at http://localhost:3000
+---
 
-## API Documentation
+## Tech Stack
 
-### User Authentication Endpoints
-- POST `/api/users/register`: Register a new user
-- POST `/api/users/login`: Login a user
-- GET `/api/users/{userId}`: Get user details
-- PUT `/api/users/{userId}`: Update user details
-- DELETE `/api/users/{userId}`: Delete a user
+- **Backend**: Java 21, Spring Boot 3.5.3, Spring Data JPA, MySQL 8, Maven
+- **Frontend**: React 18, React Router v6, Axios, Create React App
+- **Testing**: JUnit 5, Mockito, Spring Boot Test
 
-### File Management Endpoints
-- GET `/api/files/list`: Get list of files
-- POST `/api/files/upload`: Upload a file
-- GET `/api/files/downloads/{id}`: Download a file
-- DELETE `/api/files/delete/{fileId}`: Delete a file
+---
 
-## Development Notes
+## Getting Started
 
-- The backend uses Spring Data JPA for database operations
-- File storage is handled on the server's file system
-- Authentication is currently handled with simple username/password validation
-- The frontend uses React Router for client-side routing
-- User data is stored in localStorage for persistence
+### 1. Prerequisites
+
+- Java 21+
+- Maven 3.8+ (or `./mvnw` / `mvnw.cmd`)
+- Node.js 18+ and npm
+- MySQL 8+
+
+### 2. Configure Environment Variables
+
+Copy `.env.example` (never commit `.env` with real credentials):
+
+| Variable | Description | Default |
+|---|---|---|
+| `PORT` | Backend server port | `8080` |
+| `DB_URL` | MySQL JDBC URL | `jdbc:mysql://localhost:3306/drive_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true` |
+| `DB_USERNAME` | MySQL username | `root` |
+| `DB_PASSWORD` | MySQL password | `root` |
+| `FILE_UPLOAD_DIR` | Local directory for uploaded files | `uploads` |
+| `CORS_ALLOWED_ORIGINS` | Allowed frontend origins | `http://localhost:3000,http://localhost:5173` |
+
+### 3. Run the Backend
+
+```powershell
+$env:DB_PASSWORD="your_mysql_password"
+.\mvnw.cmd spring-boot:run
+```
+
+The API server runs at `http://localhost:8080`.
+
+### 4. Run the Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+The React app runs at `http://localhost:3000` and proxies `/api/*` requests to `http://localhost:8080`.
+
+---
+
+## API Reference
+
+### User Endpoints (`/api/users`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/users/register` | Register a new user |
+| `POST` | `/api/users/login` | Authenticate user credentials |
+| `GET` | `/api/users/{userId}` | Fetch user profile by ID |
+| `GET` | `/api/users/username/{username}` | Fetch user profile by username |
+| `GET` | `/api/users/all` | List all users |
+| `PUT` | `/api/users/{userId}` | Update user profile |
+| `DELETE` | `/api/users/{userId}` | Delete user account |
+
+### File & Folder Endpoints (`/api/files`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/files/list?parentFolderId=` | List files and folders (root when omitted) |
+| `POST` | `/api/files/upload` | Upload a multipart `file` (optional `parentFolderId`) |
+| `POST` | `/api/files/folders` | Create a folder (`{ "name": "...", "parentFolderId": null }`) |
+| `GET` | `/api/files/downloads/{id}` | Download a file by ID |
+| `DELETE` | `/api/files/delete/{fileId}` | Delete a file or empty folder |
+
+---
+
+## Running Tests & Builds
+
+```bash
+# Backend unit tests
+mvn test
+
+# Frontend production build
+cd frontend
+npm run build
+```
+
+---
+
+## Security Note
+
+Do not commit real database passwords, `.env` files, `uploads/`, or `node_modules/` to version control. Rotate any previously committed database credentials before deploying.

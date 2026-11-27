@@ -32,3 +32,15 @@ build/
 ### VS Code ###
 .vscode/
 
+### Environment & Uploads ###
+.env
+.env.*
+!.env.example
+!frontend/.env.example
+uploads/
+
+### Frontend ###
+node_modules/
+frontend/node_modules/
+frontend/build/
+

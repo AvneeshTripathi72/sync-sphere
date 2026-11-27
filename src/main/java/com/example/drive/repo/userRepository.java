@@ -6,18 +6,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Spring Data JPA repository for {@link UserEntity} records.
+ */
 @Repository
-public interface userRepository extends JpaRepository<UserEntity, Long> {
-    
-    // Custom method to find user by username
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
     Optional<UserEntity> findByUsername(String username);
-    
-    // Custom method to find user by email
+
     Optional<UserEntity> findByEmail(String email);
-    
-    // Custom method to check if username exists
+
     boolean existsByUsername(String username);
-    
-    // Custom method to check if email exists
+
     boolean existsByEmail(String email);
 }

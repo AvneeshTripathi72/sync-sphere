@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { register as registerRequest } from '../services/authService';
+import { extractErrorMessage } from '../services/apiClient';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -8,7 +9,7 @@ function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    fullName: ''
+    fullName: '',
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -17,62 +18,39 @@ function Register() {
 
   const { username, email, password, confirmPassword, fullName } = formData;
 
-  const onChange = e => {
+  const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const onSubmit = async e => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    
-    // Validate passwords match
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
-    setLoading(true);
 
+    setLoading(true);
     try {
-      // Create user object without confirmPassword
-      const userData = {
-        username,
-        email,
-        password,
-        fullName
-      };
-      
-      await axios.post('/api/users/register', userData);
+      await registerRequest({ username, email, password, fullName });
       setSuccess('Registration successful! Redirecting to login...');
-      
-      // Redirect to login after 2 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      setError(extractErrorMessage(err, 'Registration failed. Please try again.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="card" style={{ maxWidth: '500px', margin: '0 auto', marginTop: '50px' }}>
+    <div className="card" style={{ maxWidth: '500px', margin: '50px auto 0' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Register</h2>
-      
-      {error && (
-        <div className="alert alert-danger">
-          {error}
-        </div>
-      )}
-      
-      {success && (
-        <div className="alert alert-success">
-          {success}
-        </div>
-      )}
-      
+
+      {error && <div className="alert alert-danger">{error}</div>}
+      {success && <div className="alert alert-success">{success}</div>}
+
       <form onSubmit={onSubmit}>
         <div className="form-group">
           <label htmlFor="username">Username</label>
@@ -86,7 +64,7 @@ function Register() {
             required
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
@@ -99,7 +77,7 @@ function Register() {
             required
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="fullName">Full Name</label>
           <input
@@ -111,7 +89,7 @@ function Register() {
             onChange={onChange}
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
@@ -125,7 +103,7 @@ function Register() {
             minLength="6"
           />
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="confirmPassword">Confirm Password</label>
           <input
@@ -139,17 +117,17 @@ function Register() {
             minLength="6"
           />
         </div>
-        
-        <button 
-          type="submit" 
-          className="btn" 
+
+        <button
+          type="submit"
+          className="btn"
           style={{ width: '100%', marginTop: '10px' }}
           disabled={loading}
         >
           {loading ? 'Registering...' : 'Register'}
         </button>
       </form>
-      
+
       <p style={{ marginTop: '20px', textAlign: 'center' }}>
         Already have an account? <Link to="/login">Login</Link>
       </p>

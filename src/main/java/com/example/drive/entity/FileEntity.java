@@ -1,5 +1,6 @@
 package com.example.drive.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,29 +8,41 @@ import jakarta.persistence.Id;
 
 import java.time.LocalDateTime;
 
+/**
+ * JPA entity representing a stored file or virtual folder.
+ */
 @Entity
 public class FileEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
     private String path;
+
+    @Column(nullable = false)
     private String type;
+
     private Long size;
-    private Long parentFolderTime;
+
+    private Long parentFolderId;
 
     private LocalDateTime createdAt;
 
     public FileEntity() {
     }
 
-    public FileEntity(Long id, String name, String path, String type, Long size, Long parentFolderTime, LocalDateTime createdAt) {
+    public FileEntity(Long id, String name, String path, String type, Long size,
+                      Long parentFolderId, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.path = path;
         this.type = type;
         this.size = size;
-        this.parentFolderTime = parentFolderTime;
+        this.parentFolderId = parentFolderId;
         this.createdAt = createdAt;
     }
 
@@ -73,12 +86,12 @@ public class FileEntity {
         this.size = size;
     }
 
-    public Long getParentFolderTime() {
-        return parentFolderTime;
+    public Long getParentFolderId() {
+        return parentFolderId;
     }
 
-    public void setParentFolderTime(Long parentFolderTime) {
-        this.parentFolderTime = parentFolderTime;
+    public void setParentFolderId(Long parentFolderId) {
+        this.parentFolderId = parentFolderId;
     }
 
     public LocalDateTime getCreatedAt() {

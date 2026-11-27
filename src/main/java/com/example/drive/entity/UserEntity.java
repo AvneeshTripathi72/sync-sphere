@@ -1,41 +1,43 @@
 package com.example.drive.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Column;
 
 import java.time.LocalDateTime;
 
+/**
+ * JPA entity representing a registered SyncSphere user.
+ */
 @Entity
 public class UserEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable = false)
+
+    @Column(nullable = false, unique = true)
     private String username;
-    
+
     @Column(nullable = false)
     private String password;
-    
+
     @Column(nullable = false, unique = true)
     private String email;
-    
+
     private String fullName;
-    
+
     private LocalDateTime createdAt;
-    
+
     private LocalDateTime lastLogin;
 
-    // Default constructor
     public UserEntity() {
     }
 
-    // Parameterized constructor
-    public UserEntity(Long id, String username, String password, String email, String fullName, 
-                     LocalDateTime createdAt, LocalDateTime lastLogin) {
+    public UserEntity(Long id, String username, String password, String email, String fullName,
+                      LocalDateTime createdAt, LocalDateTime lastLogin) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -45,7 +47,6 @@ public class UserEntity {
         this.lastLogin = lastLogin;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

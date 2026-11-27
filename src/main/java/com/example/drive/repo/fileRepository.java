@@ -6,12 +6,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Spring Data JPA repository for {@link FileEntity} records.
+ */
 @Repository
+public interface FileRepository extends JpaRepository<FileEntity, Long> {
 
+    List<FileEntity> findByParentFolderId(Long parentFolderId);
 
-public interface fileRepository extends JpaRepository<FileEntity, Long> {
-
-    // Custom method to find by parent folder ID
-    List<FileEntity> findByParentFolderTime(Long parentFolderId);
+    List<FileEntity> findByParentFolderIdIsNull();
 }
-
